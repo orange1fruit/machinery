@@ -1,4 +1,4 @@
-module github.com/RichardKnop/machinery
+module github.com/orange1fruit/machinery
 
 go 1.15
 

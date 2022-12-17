@@ -3,10 +3,10 @@ package null
 import (
 	"fmt"
 
-	"github.com/RichardKnop/machinery/v2/backends/iface"
-	"github.com/RichardKnop/machinery/v2/common"
-	"github.com/RichardKnop/machinery/v2/config"
-	"github.com/RichardKnop/machinery/v2/tasks"
+	"github.com/orange1fruit/machinery/v2/backends/iface"
+	"github.com/orange1fruit/machinery/v2/common"
+	"github.com/orange1fruit/machinery/v2/config"
+	"github.com/orange1fruit/machinery/v2/tasks"
 )
 
 // ErrGroupNotFound ...
