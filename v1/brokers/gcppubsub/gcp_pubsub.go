@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
+
 	"github.com/orange1fruit/machinery/v1/brokers/iface"
 	"github.com/orange1fruit/machinery/v1/common"
 	"github.com/orange1fruit/machinery/v1/config"
@@ -24,6 +25,10 @@ type Broker struct {
 	MaxExtension     time.Duration
 
 	stopDone chan struct{}
+}
+
+func (b *Broker) RemoveDelayedTask(_ *tasks.Signature) error {
+	return nil
 }
 
 // New creates new Broker instance
