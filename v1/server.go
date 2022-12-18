@@ -178,6 +178,15 @@ func (server *Server) GetRegisteredTask(name string) (interface{}, error) {
 	return taskFunc, nil
 }
 
+func (server *Server) RemoveDelayedTaskWithContext(ctx context.Context, signature *tasks.Signature) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "RemoveTask", tracing.ProducerOption(), tracing.MachineryTag)
+	defer span.Finish()
+	if err := server.broker.RemoveDelayedTask(signature); err != nil {
+		return fmt.Errorf("Remove message error: %s", err)
+	}
+	return nil
+}
+
 // SendTaskWithContext will inject the trace context in the signature headers before publishing it
 func (server *Server) SendTaskWithContext(ctx context.Context, signature *tasks.Signature) (*result.AsyncResult, error) {
 	span, _ := opentracing.StartSpanFromContext(ctx, "SendTask", tracing.ProducerOption(), tracing.MachineryTag)

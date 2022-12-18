@@ -37,6 +37,7 @@ type Server interface {
 	SendGroup(group *tasks.Group, sendConcurrency int) ([]*result.AsyncResult, error)
 	SendChordWithContext(ctx context.Context, chord *tasks.Chord, sendConcurrency int) (*result.ChordAsyncResult, error)
 	SendChord(chord *tasks.Chord, sendConcurrency int) (*result.ChordAsyncResult, error)
+	RemoveDelayedTaskWithContext(ctx context.Context, signature *tasks.Signature) error
 }
 
 func testAll(server Server, t *testing.T) {
