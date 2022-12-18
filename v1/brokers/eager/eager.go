@@ -18,6 +18,10 @@ type Broker struct {
 	common.Broker
 }
 
+func (b *Broker) RemoveDelayedTask(_ *tasks.Signature) error {
+	return nil
+}
+
 // New creates new Broker instance
 func New() iface.Broker {
 	return new(Broker)

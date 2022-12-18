@@ -36,6 +36,10 @@ type BrokerGR struct {
 	redisDelayedTasksKey string
 }
 
+func (b *BrokerGR) RemoveDelayedTask(_ *tasks.Signature) error {
+	return nil
+}
+
 // NewGR creates new Broker instance
 func NewGR(cnf *config.Config, addrs []string, db int) iface.Broker {
 	b := &BrokerGR{Broker: common.NewBroker(cnf)}

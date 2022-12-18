@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs/sqsiface"
+
 	"github.com/orange1fruit/machinery/v1/brokers/errs"
 	"github.com/orange1fruit/machinery/v1/brokers/iface"
 	"github.com/orange1fruit/machinery/v1/common"
@@ -36,6 +37,10 @@ type Broker struct {
 	sess              *session.Session
 	service           sqsiface.SQSAPI
 	queueUrl          *string
+}
+
+func (b *Broker) RemoveDelayedTask(_ *tasks.Signature) error {
+	return nil
 }
 
 // New creates new Broker instance
