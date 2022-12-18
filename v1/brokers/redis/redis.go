@@ -246,6 +246,21 @@ func (b *Broker) GetPendingTasks(queue string) ([]*tasks.Signature, error) {
 	return taskSignatures, nil
 }
 
+func (b *Broker) RemoveDelayedTask(signature *tasks.Signature) error {
+	conn := b.open()
+	defer conn.Close()
+
+	signatureJSON, err := json.Marshal(signature)
+	if err != nil {
+		return err
+	}
+	err = conn.Send("ZREM", b.redisDelayedTasksKey, signatureJSON)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetDelayedTasks returns a slice of task signatures that are scheduled, but not yet in the queue
 func (b *Broker) GetDelayedTasks() ([]*tasks.Signature, error) {
 	conn := b.open()
