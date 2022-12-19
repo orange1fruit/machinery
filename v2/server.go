@@ -17,10 +17,11 @@ import (
 	"github.com/orange1fruit/machinery/v2/tracing"
 	"github.com/orange1fruit/machinery/v2/utils"
 
+	"github.com/opentracing/opentracing-go"
+
 	backendsiface "github.com/orange1fruit/machinery/v2/backends/iface"
 	brokersiface "github.com/orange1fruit/machinery/v2/brokers/iface"
 	lockiface "github.com/orange1fruit/machinery/v2/locks/iface"
-	opentracing "github.com/opentracing/opentracing-go"
 )
 
 // Server is the main Machinery object and stores all configuration
@@ -323,11 +324,11 @@ func (server *Server) GetRegisteredTaskNames() []string {
 }
 
 // RegisterPeriodicTask register a periodic task which will be triggered periodically
-func (server *Server) RegisterPeriodicTask(spec, name string, signature *tasks.Signature) error {
+func (server *Server) RegisterPeriodicTask(spec, name string, signature *tasks.Signature) (cron.EntryID, error) {
 	//check spec
 	schedule, err := cron.ParseStandard(spec)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	f := func() {
@@ -344,8 +345,8 @@ func (server *Server) RegisterPeriodicTask(spec, name string, signature *tasks.S
 		}
 	}
 
-	_, err = server.scheduler.AddFunc(spec, f)
-	return err
+	id, err := server.scheduler.AddFunc(spec, f)
+	return id, err
 }
 
 // RegisterPeriodicChain register a periodic chain which will be triggered periodically
