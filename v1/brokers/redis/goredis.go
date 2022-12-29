@@ -25,33 +25,24 @@ import (
 // BrokerGR represents a Redis broker
 type BrokerGR struct {
 	common.Broker
-	rclient      redis.UniversalClient
-	consumingWG  sync.WaitGroup // wait group to make sure whole consumption completes
-	processingWG sync.WaitGroup // use wait group to make sure task processing completes
-	delayedWG    sync.WaitGroup
-	// If set, path to a socket file overrides hostname
-	socketPath           string
+	rclient              redis.UniversalClient
+	consumingWG          sync.WaitGroup // wait group to make sure whole consumption completes
+	processingWG         sync.WaitGroup // use wait group to make sure task processing completes
+	delayedWG            sync.WaitGroup
 	redsync              *redsync.Redsync
 	redisOnce            sync.Once
 	redisDelayedTasksKey string
 }
 
 // NewGR creates new Broker instance
-func NewGR(cnf *config.Config, addrs []string, db int) iface.Broker {
+func NewGR(cnf *config.Config, addresses []string, db int) iface.Broker {
 	b := &BrokerGR{Broker: common.NewBroker(cnf)}
 
-	var password string
-	parts := strings.Split(addrs[0], "@")
-	if len(parts) >= 2 {
-		// with password
-		password = strings.Join(parts[:len(parts)-1], "@")
-		addrs[0] = parts[len(parts)-1] // addr is the last one without @
-	}
-
 	ropt := &redis.UniversalOptions{
-		Addrs:    addrs,
-		DB:       db,
-		Password: password,
+		Addrs:            addresses,
+		DB:               db,
+		Password:         cnf.Redis.Password,
+		SentinelPassword: cnf.Redis.SentinelPassword,
 	}
 	if cnf.Redis != nil {
 		ropt.MasterName = cnf.Redis.MasterName
@@ -59,6 +50,8 @@ func NewGR(cnf *config.Config, addrs []string, db int) iface.Broker {
 
 	if cnf.Redis != nil && cnf.Redis.ClusterMode {
 		b.rclient = redis.NewClusterClient(ropt.Cluster())
+	} else if cnf.Redis != nil && cnf.Redis.Sentinel {
+		b.rclient = redis.NewFailoverClient(ropt.Failover())
 	} else {
 		b.rclient = redis.NewUniversalClient(ropt)
 	}

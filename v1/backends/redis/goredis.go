@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"strings"
 	"sync"
 	"time"
 
@@ -22,32 +21,24 @@ import (
 // BackendGR represents a Redis result backend
 type BackendGR struct {
 	common.Backend
-	rclient  redis.UniversalClient
-	host     string
-	password string
-	db       int
-	// If set, path to a socket file overrides hostname
-	socketPath string
-	redsync    *redsync.Redsync
-	redisOnce  sync.Once
+	rclient   redis.UniversalClient
+	host      string
+	db        int
+	redsync   *redsync.Redsync
+	redisOnce sync.Once
 }
 
 // NewGR creates Backend instance
-func NewGR(cnf *config.Config, addrs []string, db int) iface.Backend {
+func NewGR(cnf *config.Config, addresses []string, db int) iface.Backend {
 	b := &BackendGR{
 		Backend: common.NewBackend(cnf),
 	}
-	parts := strings.Split(addrs[0], "@")
-	if len(parts) >= 2 {
-		// with passwrod
-		b.password = strings.Join(parts[:len(parts)-1], "@")
-		addrs[0] = parts[len(parts)-1] // addr is the last one without @
-	}
 
 	ropt := &redis.UniversalOptions{
-		Addrs:    addrs,
-		DB:       db,
-		Password: b.password,
+		Addrs:            addresses,
+		DB:               db,
+		Password:         cnf.Redis.Password,
+		SentinelPassword: cnf.Redis.SentinelPassword,
 	}
 	if cnf.Redis != nil {
 		ropt.MasterName = cnf.Redis.MasterName
@@ -55,8 +46,9 @@ func NewGR(cnf *config.Config, addrs []string, db int) iface.Backend {
 
 	if cnf.Redis != nil && cnf.Redis.ClusterMode {
 		b.rclient = redis.NewClusterClient(ropt.Cluster())
+	} else if cnf.Redis != nil && cnf.Redis.Sentinel {
+		b.rclient = redis.NewFailoverClient(ropt.Failover())
 	} else {
-
 		b.rclient = redis.NewUniversalClient(ropt)
 	}
 	b.redsync = redsync.New(redsyncgoredis.NewPool(b.rclient))

@@ -151,6 +151,12 @@ type RedisConfig struct {
 	MasterName string `yaml:"master_name" envconfig:"REDIS_MASTER_NAME"`
 	// ClusterMode specifies machinery should use redis cluster client explicitly
 	ClusterMode bool `yaml:"cluster_mode" envconfig:"REDIS_CLUSTER_MODE"`
+
+	Sentinel bool `yaml:"sentinel" envconfig:"REDIS_SENTINEL"`
+
+	Password string `yaml:"password" envconfig:"REDIS_PASSWORD"`
+
+	SentinelPassword string `yaml:"sentinel_password" envconfig:"REDIS_SENTINEL_PASSWORD"`
 }
 
 // GCPPubSubConfig wraps GCP PubSub related configuration

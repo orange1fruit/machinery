@@ -3,11 +3,10 @@ package machinery
 import (
 	"errors"
 	"fmt"
+	neturl "net/url"
 	"os"
 	"strconv"
 	"strings"
-
-	neturl "net/url"
 
 	"github.com/orange1fruit/machinery/v1/config"
 
@@ -57,7 +56,7 @@ func BrokerFactory(cnf *config.Config) (brokeriface.Broker, error) {
 				cnf.Broker,
 			)
 		}
-		brokers := strings.Split(parts[1], ",")
+		brokers := strings.Split(parts[1], cnf.MultipleBrokerSeparator)
 		if len(brokers) > 1 || (cnf.Redis != nil && cnf.Redis.ClusterMode) {
 			return redisbroker.NewGR(cnf, brokers, 0), nil
 		} else {
@@ -139,7 +138,7 @@ func BackendFactory(cnf *config.Config) (backendiface.Backend, error) {
 			scheme = "rediss://"
 		}
 		parts := strings.Split(cnf.ResultBackend, scheme)
-		addrs := strings.Split(parts[1], ",")
+		addrs := strings.Split(parts[1], cnf.MultipleBrokerSeparator)
 		if len(addrs) > 1 || (cnf.Redis != nil && cnf.Redis.ClusterMode) {
 			return redisbackend.NewGR(cnf, addrs, 0), nil
 		} else {
